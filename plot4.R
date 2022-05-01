@@ -1,0 +1,41 @@
+# Load "dplyr" library
+library(dplyr)
+
+# Download Data Set if necessary
+zipname <- "exdata_data_household_power_consumption.zip"
+filename<- "household_power_consumption.txt"
+# Checking if data set file already exists
+if (!file.exists(zipname)){
+  fileURL <- "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip"
+  download.file(fileURL, destfile = zipname, method="curl")
+}  
+# Checking if data set exists
+if (!file.exists(filename)) { 
+  unzip(zipname) 
+}
+
+# Import data with dates 2007-02-01 and 2007-02-02
+headers = read.csv(filename, header = FALSE, nrows = 1, sep=";") 
+elepowdata <- read.csv("~/Coursera/Data Science/04_Exploratory Data Analysis/Week 1/household_power_consumption.txt", header=FALSE, sep=";", skip=66638, nrows=(69518-66639))
+colnames(elepowdata)= headers
+
+# Create Date/Time column
+elepowdata <- mutate(elepowdata,DateTime=strptime(paste(Date,Time), "%d/%m/%Y %H:%M:%S"))
+
+#PLOT4
+png(filename = "plot4.png", width = 480, height = 480,
+    units = "px", pointsize = 12, bg = "white", res = NA,
+    restoreConsole = TRUE)
+Sys.setlocale(category = "LC_ALL", locale = "english")
+par(mfrow=c(2,2))
+plot(elepowdata$DateTime, elepowdata$Global_active_power, type = "l", xlab="", ylab="Global Active Power (kilowatts)")
+
+plot(elepowdata$DateTime, elepowdata$Voltage, type = "l", xlab="datetime", ylab="Voltage")
+
+plot(elepowdata$DateTime, elepowdata$Sub_metering_1, type = "l", xlab="", ylab="Energy sub metering")
+lines(elepowdata$DateTime, elepowdata$Sub_metering_2, col="red")
+lines(elepowdata$DateTime, elepowdata$Sub_metering_3, col="blue")
+legend("topright", legend=c("Sub_metering_1","Sub_metering_2","Sub_metering_3"), lty=1, col=c("black","red","blue"))
+
+plot(elepowdata$DateTime, elepowdata$Global_reactive_power, type = "l", xlab="datetime", ylab="Global_reactive_power")
+dev.off()
